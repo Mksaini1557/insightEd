@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>insightED — Admin Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#4A6CF7;--primary-dark:#3A5CE5;--bg:#F0F2F5;--card:#fff;--text:#1a1a2e;--text2:#666;--border:#E0E4EA;--danger:#E53935;--success:#2E7D32;--warning:#F57C00;--radius:12px}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+button{cursor:pointer;font-family:inherit}
+
+/* LOGIN SCREEN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#4A6CF7 0%,#7B68EE 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:white;border-radius:20px;padding:48px 40px;width:420px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center}
+.login-card .logo{font-size:48px;margin-bottom:8px}
+.login-card h1{font-size:24px;color:var(--primary);margin-bottom:4px}
+.login-card p{color:var(--text2);font-size:14px;margin-bottom:28px}
+.login-card input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:14px;transition:.2s}
+.login-card input:focus{outline:none;border-color:var(--primary)}
+.login-card .btn-login{width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-top:6px}
+.login-card .btn-login:hover{background:var(--primary-dark)}
+.login-card .error{color:var(--danger);font-size:13px;margin-top:8px;display:none}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:white;min-height:100vh;padding:24px 0;display:flex;flex-direction:column;box-shadow:2px 0 12px rgba(0,0,0,0.04);position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sidebar .logo-area{padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sidebar .logo-area .s-name{font-size:20px;font-weight:800;color:var(--primary)}
+.sidebar .logo-area .s-sub{font-size:11px;color:var(--text2)}
+.sidebar nav{flex:1;padding:8px 14px}
+.sidebar nav .nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:var(--text2);font-size:15px;font-weight:500;cursor:pointer;margin-bottom:2px;transition:.15s;border:none;background:none;width:100%;text-align:left}
+.sidebar nav .nav-item:hover{background:#E8ECFF;color:var(--primary)}
+.sidebar nav .nav-item.active{background:var(--primary);color:white}
+.sidebar nav .nav-item .n-icon{font-size:18px;width:24px;text-align:center}
+.sidebar .user-area{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar .user-area .avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.sidebar .user-area .u-info{flex:1}
+.sidebar .user-area .u-email{font-size:13px;font-weight:600;color:var(--text)}
+.sidebar .user-area .u-role{font-size:11px;color:var(--text2)}
+.sidebar .user-area .logout-btn{background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px}
+
+/* MAIN */
+.main{margin-left:260px;flex:1;min-height:100vh}
+.topbar{background:white;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.topbar h2{font-size:20px;font-weight:700}
+.content{padding:28px}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:white;border-radius:var(--radius);padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;align-items:center;gap:16px}
+.stat-card .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.stat-card .stat-num{font-size:26px;font-weight:800}
+.stat-card .stat-label{font-size:12px;color:var(--text2)}
+
+.card{background:white;border-radius:var(--radius);padding:28px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:20px}
+.card h3{font-size:18px;color:var(--primary);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid.span{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select,.field textarea{padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;transition:.2s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary)}
+.field textarea{resize:vertical;min-height:120px;font-size:14px;line-height:1.6}
+
+.btn{padding:12px 24px;border:none;border-radius:10px;font-size:14px;font-weight:700;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--primary);color:white}.btn-primary:hover{background:var(--primary-dark)}
+.btn-danger{background:var(--danger);color:white}.btn-danger:hover{background:#C62828}
+.btn-success{background:var(--success);color:white}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text2)}
+.btn-outline:hover{background:#f5f5f5}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-blue{background:#E8ECFF;color:var(--primary)}
+.badge-red{background:#FFEBEE;color:var(--danger)}
+.badge-green{background:#E8F5E9;color:var(--success)}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:14px 16px;background:#F8F9FC;color:var(--text2);font-size:12px;font-weight:700;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px}
+tr:hover td{background:#F8F9FC}
+tr:last-child td{border-bottom:none}
+
+.search-bar{display:flex;gap:10px;margin-bottom:16px}
+.search-bar input{flex:1;padding:10px 16px;border:2px solid var(--border);border-radius:10px;font-size:14px}
+.search-bar input:focus{outline:none;border-color:var(--primary)}
+
+.toast{position:fixed;top:20px;right:20px;z-index:9999;padding:14px 20px;border-radius:10px;color:white;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.15);transform:translateX(120%);transition:transform .3s;max-width:400px}
+.toast.show{transform:translateX(0)}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--primary)}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--text2)}
+.empty-state .icon{font-size:56px;margin-bottom:12px}
+.empty-state p{font-size:15px}
+
+.hidden{display:none!important}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center}
+.modal{background:white;border-radius:16px;padding:32px;width:600px;max-width:90vw;max-height:80vh;overflow-y:auto}
+
+@media(max-width:900px){.sidebar{width:72px;padding:16px 0}.sidebar .logo-area{padding:0 10px 12px}.sidebar .logo-area .s-name{font-size:14px}.sidebar .logo-area .s-sub,.sidebar nav .nav-item span:not(.n-icon),.sidebar .user-area .u-info{display:none}.sidebar nav .nav-item{justify-content:center;padding:14px 0}.main{margin-left:72px}.stats-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+<div class="login-card">
+<div class="logo">📚</div>
+<h1>insightED Admin</h1>
+<p>Sign in to manage your courses</p>
+<input type="email" id="login-email" placeholder="Email address" autocomplete="email">
+<input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
+<button class="btn-login" onclick="handleLogin()">Sign In</button>
+<p class="error" id="login-error"></p>
+<p style="margin-top:16px;font-size:12px;color:var(--text2)">Use your Firebase Auth credentials</p>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar hidden" id="sidebar">
+<div class="logo-area">
+<div class="s-name">📚 insightED</div>
+<div class="s-sub">Admin Portal v2.0</div>
+</div>
+<nav>
+<button class="nav-item active" onclick="navigate('dashboard')"><span class="n-icon">📊</span> Dashboard</button>
+<button class="nav-item" onclick="navigate('add-topic')"><span class="n-icon">➕</span> Add Topic</button>
+<button class="nav-item" onclick="navigate('add-category')"><span class="n-icon">📁</span> Add Category</button>
+<button class="nav-item" onclick="navigate('topics')"><span class="n-icon">📋</span> All Topics</button>
+<button class="nav-item" onclick="navigate('categories')"><span class="n-icon">🏷</span> Categories</button>
+</nav>
+<div class="user-area">
+<div class="avatar" id="user-avatar">A</div>
+<div class="u-info">
+<div class="u-email" id="user-email">admin@insighted.com</div>
+<div class="u-role">Administrator</div>
+</div>
+<button class="logout-btn" onclick="handleLogout()" title="Logout">⏻</button>
+</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main hidden" id="main-content">
+<div class="topbar">
+<h2 id="page-title">Dashboard</h2>
+</div>
+<div class="content" id="page-content"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyC2JZsIRgfKEBqMd-Vu8CJn-nnOw84h_DQ",
+  authDomain: "indighted-e6929.firebaseapp.com",
+  projectId: "indighted-e6929",
+  storageBucket: "indighted-e6929.firebasestorage.app",
+  appId: "1:118498748388:android:803299007891f6686509f1"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ── GLOBAL STATE ──
+let currentPage = 'dashboard';
+
+// ── TOAST ──
+function toast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── AUTH ──
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('sidebar').classList.remove('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+    document.getElementById('user-email').textContent = user.email || 'Admin';
+    document.getElementById('user-avatar').textContent = (user.email || 'A')[0].toUpperCase();
+    if (currentPage === 'dashboard') loadDashboard();
+  } else {
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('sidebar').classList.add('hidden');
+    document.getElementById('main-content').classList.add('hidden');
+  }
+});
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Enter email and password'; errEl.style.display = 'block'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch (e) {
+    errEl.textContent = e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
+    errEl.style.display = 'block';
+  }
+}
+
+async function handleLogout() {
+  await auth.signOut();
+  currentPage = 'dashboard';
+}
+
+// ── NAVIGATION ──
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick="navigate('${page}')"]`)?.classList.add('active');
+  const titles = { dashboard: 'Dashboard', 'add-topic': 'Add New Topic', 'add-category': 'Add New Category', topics: 'All Topics', categories: 'Categories' };
+  document.getElementById('page-title').textContent = titles[page] || '';
+  const container = document.getElementById('page-content');
+  switch (page) {
+    case 'dashboard': loadDashboard(); break;
+    case 'add-topic': container.innerHTML = renderAddTopic(); loadCatDropdown(); break;
+    case 'add-category': container.innerHTML = renderAddCategory(); break;
+    case 'topics': container.innerHTML = renderTopics(); loadTopicsTable(); break;
+    case 'categories': container.innerHTML = renderCategories(); loadCategoriesTable(); break;
+  }
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const container = document.getElementById('page-content');
+  container.innerHTML = '<p style="color:var(--text2)">Loading dashboard...</p>';
+  let topicCount = 0, catCount = 0;
+  try {
+    const ts = await db.collection('gyan_topics').get(); topicCount = ts.size;
+    const cs = await db.collection('gyan_categories').get(); catCount = cs.size;
+  } catch (_) {}
+  container.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#E8ECFF;color:var(--primary)">📋</div><div><div class="stat-num">${topicCount}</div><div class="stat-label">Total Topics</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0;color:var(--warning)">🏷</div><div><div class="stat-num">${catCount}</div><div class="stat-label">Categories</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9;color:var(--success)">📚</div><div><div class="stat-num">${topicCount * 10}+</div><div class="stat-label">Quiz Questions</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FCE4EC;color:var(--danger)">👥</div><div><div class="stat-num">1</div><div class="stat-label">Admins</div></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card"><h3>Quick Actions</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+          <button class="btn btn-primary" onclick="navigate('add-topic')">➕ Add New Topic</button>
+          <button class="btn btn-outline" onclick="navigate('add-category')">📁 Add Category</button>
+          <button class="btn btn-outline" onclick="navigate('topics')">📋 View All Topics</button>
+        </div>
+      </div>
+      <div class="card"><h3>insightED Info</h3>
+        <p style="color:var(--text2);font-size:14px;line-height:1.7">
+          <b>Collections:</b> <code>gyan_categories</code>, <code>gyan_topics</code><br>
+          <b>Project:</b> indighted-e6929<br>
+          <b>App Package:</b> com.insight.Ed
+        </p>
+      </div>
+    </div>`;
+}
+
+// ── ADD TOPIC ──
+function renderAddTopic() {
+  return `<div class="card"><h3>📝 Add New Topic</h3>
+    <div class="form-grid">
+      <div class="field"><label>Topic Title *</label><input type="text" id="tp-title" placeholder="e.g., Introduction to DSA"></div>
+      <div class="field"><label>Category *</label><select id="tp-category"><option value="">Loading...</option></select></div>
+      <div class="field" style="grid-column:1/-1"><label>Description</label><input type="text" id="tp-desc" placeholder="Short description shown in list"></div>
+      <div class="field" style="grid-column:1/-1"><label>Full Content *</label><textarea id="tp-content" placeholder="Paste the complete topic content here... This will be read aloud to users."></textarea></div>
+      <div class="field"><label>PDF URL</label><input type="url" id="tp-pdf" placeholder="https://..."></div>
+      <div class="field"><label>Text File URL</label><input type="url" id="tp-file" placeholder="https://..."></div>
+      <div class="field"><label>Order</label><input type="number" id="tp-order" value="1" min="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveTopic()">💾 Save Topic</button>
+      <button class="btn btn-outline" onclick="clearTopicForm()">Clear</button>
+    </div></div>`;
+}
+
+async function loadCatDropdown() {
+  const sel = document.getElementById('tp-category');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Loading...</option>';
+  try {
+    const snap = await db.collection('gyan_categories').get();
+    sel.innerHTML = '<option value="">Select category</option>';
+    snap.forEach(d => { const x = d.data(); sel.innerHTML += `<option value="${d.id}">${x.name || d.id}</option>`; });
+    if (snap.empty) { sel.innerHTML += '<option value="technical">Technical (default)</option>'; }
+  } catch (_) { sel.innerHTML = '<option value="">Error</option>'; }
+}
+
+async function saveTopic() {
+  const title = document.getElementById('tp-title')?.value.trim();
+  const cat = document.getElementById('tp-category')?.value;
+  const desc = document.getElementById('tp-desc')?.value.trim();
+  const content = document.getElementById('tp-content')?.value.trim();
+  const pdf = document.getElementById('tp-pdf')?.value.trim();
+  const file = document.getElementById('tp-file')?.value.trim();
+  const order = parseInt(document.getElementById('tp-order')?.value) || 1;
+  if (!title) return toast('Enter a title', 'error');
+  if (!cat) return toast('Select a category', 'error');
+  try {
+    await db.collection('gyan_topics').add({ title, category: cat, description: desc, content, pdfUrl: pdf, fileUrl: file, order, createdAt: new Date().toISOString() });
+    toast(`Topic "${title}" saved!`, 'success');
+    clearTopicForm();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function clearTopicForm() {
+  ['tp-title','tp-desc','tp-content','tp-pdf','tp-file'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const o = document.getElementById('tp-order'); if (o) o.value = '1';
+}
+
+// ── ADD CATEGORY ──
+function renderAddCategory() {
+  return `<div class="card"><h3>📁 Add New Category</h3>
+    <div class="form-grid">
+      <div class="field"><label>Category ID * (unique, lowercase)</label><input type="text" id="cat-id" placeholder="e.g., mathematics"></div>
+      <div class="field"><label>Category Name *</label><input type="text" id="cat-name" placeholder="e.g., Mathematics"></div>
+      <div class="field"><label>Icon</label>
+        <select id="cat-icon">
+          <option value="code">💻 code</option><option value="science">🔬 science</option><option value="history_edu">📜 history_edu</option>
+          <option value="translate">🌐 translate</option><option value="lightbulb">💡 lightbulb</option><option value="school">🏫 school</option>
+          <option value="psychology">🧠 psychology</option><option value="computer">🖥 computer</option><option value="menu_book">📖 menu_book</option>
+        </select></div>
+      <div class="field"><label>Color</label><input type="color" id="cat-color" value="#4A6CF7" style="height:44px;padding:2px"></div>
+      <div class="field"><label>Order</label><input type="number" id="cat-order" value="1" min="1"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="saveCategory()">💾 Save Category</button></div></div>`;
+}
+
+async function saveCategory() {
+  const id = document.getElementById('cat-id')?.value.trim().toLowerCase().replace(/\s+/g, '_');
+  const name = document.getElementById('cat-name')?.value.trim();
+  const icon = document.getElementById('cat-icon')?.value;
+  const color = document.getElementById('cat-color')?.value;
+  const order = parseInt(document.getElementById('cat-order')?.value) || 1;
+  if (!id) return toast('Enter a category ID', 'error');
+  if (!name) return toast('Enter a category name', 'error');
+  try {
+    await db.collection('gyan_categories').doc(id).set({ name, icon, color, order });
+    toast(`Category "${name}" saved!`, 'success');
+    ['cat-id','cat-name'].forEach(x => { const el = document.getElementById(x); if (el) el.value = ''; });
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ── VIEW TOPICS ──
+function renderTopics() {
+  return `<div class="card"><h3>📋 All Topics</h3>
+    <div class="search-bar"><input type="text" id="topic-search" placeholder="🔍 Search topics..." oninput="filterTopics()"></div>
+    <div id="topics-table"><p style="color:var(--text2)">Loading...</p></div></div>`;
+}
+
+let allTopics = [];
+async function loadTopicsTable() {
+  const div = document.getElementById('topics-table');
+  if (!div) return;
+  div.innerHTML = '<p style="color:var(--text2)">Loading topics...</p>';
+  try {
+    const snap = await db.collection('gyan_topics').get();
+    allTopics = [];
+    snap.forEach(d => allTopics.push({ id: d.id, ...d.data() }));
+    allTopics.sort((a, b) => (a.order || 0) - (b.order || 0));
+    renderTopicsTable(allTopics);
+  } catch (e) { div.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`; }
+}
+
+function filterTopics() {
+  const q = document.getElementById('topic-search')?.value.toLowerCase() || '';
+  renderTopicsTable(allTopics.filter(t => (t.title || '').toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q)));
+}
+
+function renderTopicsTable(topics) {
+  const div = document.getElementById('topics-table');
+  if (!div) return;
+  if (!topics.length) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No topics found</p></div>'; return; }
+  let html = `<table><thead><tr><th>Title</th><th>Category</th><th>Content</th><th>Order</th><th>Actions</th></tr></thead><tbody>`;
+  topics.forEach(t => {
+    html += `<tr>
+      <td><strong>${t.title || 'Untitled'}</strong>${t.description ? `<br><small style="color:var(--text2)">${t.description}</small>` : ''}</td>
+      <td><span class="badge badge-blue">${t.category || 'N/A'}</span></td>
+      <td>${t.content ? (t.content.length > 80 ? t.content.substring(0,80)+'...' : t.content) : '<span style="color:#ccc">—</span>'}</td>
+      <td>${t.order || 1}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick='editTopic(${JSON.stringify(t.id)},${JSON.stringify(t).replace(/'/g,"&#39;")})'>✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTopic('${t.id}')">🗑</button>
+      </td></tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+async function editTopic(id, data) {
+  const newTitle = prompt('Edit title:', data.title);
+  if (newTitle === null) return;
+  const newContent = prompt('Edit content:', data.content || '');
+  if (newContent === null) return;
+  try {
+    await db.collection('gyan_topics').doc(id).update({ title: newTitle.trim(), content: newContent.trim() });
+    toast('Topic updated!', 'success');
+    loadTopicsTable();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function deleteTopic(id) {
+  if (!confirm('Delete this topic permanently?')) return;
+  try {
+    await db.collection('gyan_topics').doc(id).delete();
+    toast('Topic deleted', 'success');
+    loadTopicsTable();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ── VIEW CATEGORIES ──
+function renderCategories() {
+  return `<div class="card"><h3>🏷 All Categories</h3><div id="categories-table"><p style="color:var(--text2)">Loading...</p></div></div>`;
+}
+
+async function loadCategoriesTable() {
+  const div = document.getElementById('categories-table');
+  if (!div) return;
+  div.innerHTML = '<p style="color:var(--text2)">Loading...</p>';
+  try {
+    const snap = await db.collection('gyan_categories').get();
+    if (snap.empty) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No categories in database</p></div>'; return; }
+    let html = `<table><thead><tr><th>Name</th><th>ID</th><th>Icon</th><th>Color</th><th>Order</th><th>Actions</th></tr></thead><tbody>`;
+    snap.forEach(d => {
+      const x = d.data();
+      html += `<tr>
+        <td><strong>${x.name||'Unnamed'}</strong></td><td><code>${d.id}</code></td><td>${x.icon||'menu_book'}</td>
+        <td><span style="display:inline-block;width:18px;height:18px;border-radius:4px;background:${x.color||'#4A6CF7'};vertical-align:middle"></span> ${x.color||'#4A6CF7'}</td>
+        <td>${x.order||1}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteCategory('${d.id}')">🗑</button></td></tr>`;
+    });
+    html += '</tbody></table>';
+    div.innerHTML = html;
+  } catch (e) { div.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`; }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category? Topics under it will remain but become uncategorized.')) return;
+  try { await db.collection('gyan_categories').doc(id).delete(); toast('Category deleted', 'success'); loadCategoriesTable(); }
+  catch (e) { toast(e.message, 'error'); }
+}
+
+// Init
+console.log('✅ insightED Admin Portal v2.0 ready');
+</script>
+</body>
+</html>

@@ -64,7 +64,6 @@ class _InsightEdGyanState extends State<InsightEdGyan> {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('gyan_categories')
-                .orderBy('order', descending: false)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -73,7 +72,13 @@ class _InsightEdGyanState extends State<InsightEdGyan> {
 
               List<Map<String, dynamic>> categories;
               if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                categories = snapshot.data!.docs.map((doc) {
+                var docs = snapshot.data!.docs.toList();
+                docs.sort((a, b) {
+                  final orderA = (a.data() as Map<String, dynamic>)['order'] ?? 0;
+                  final orderB = (b.data() as Map<String, dynamic>)['order'] ?? 0;
+                  return (orderA as num).compareTo(orderB as num);
+                });
+                categories = docs.map((doc) {
                   final d = doc.data() as Map<String, dynamic>;
                   return {
                     'id': doc.id,
