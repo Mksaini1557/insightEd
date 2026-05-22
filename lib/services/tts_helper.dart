@@ -5,28 +5,32 @@ class TtsHelper {
   factory TtsHelper() => _instance;
   TtsHelper._internal();
 
-  final FlutterTts _tts = FlutterTts();
-  bool _initialized = false;
+  final FlutterTts tts = FlutterTts();
+  bool ready = false;
 
   Future<void> init() async {
-    if (_initialized) return;
-    await _tts.setLanguage('en-US');
-    await _tts.setPitch(1.0);
-    await _tts.setSpeechRate(0.45);
-    _initialized = true;
+    if (ready) return;
+    try {
+      await tts.setLanguage('en-US');
+      await tts.setPitch(1.0);
+      await tts.setSpeechRate(0.45);
+      ready = true;
+    } catch (_) {
+      // TTS not available on this device
+      ready = false;
+    }
   }
 
   Future<void> speak(String text) async {
-    await init();
-    await _tts.stop();
-    await _tts.speak(text);
+    if (!ready) await init();
+    if (!ready) return;
+    try {
+      await tts.stop();
+      await tts.speak(text);
+    } catch (_) {}
   }
 
   Future<void> stop() async {
-    await _tts.stop();
-  }
-
-  void dispose() {
-    _tts.stop();
+    try { await tts.stop(); } catch (_) {}
   }
 }

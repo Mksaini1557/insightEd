@@ -19,6 +19,7 @@ class _Pronunciation2State extends State<Pronunciation2> {
   int _pageNo = 0;
   late List<String> _quotes;
   bool _hasSpoken = false;
+  bool _ttsReady = false;
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _Pronunciation2State extends State<Pronunciation2> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   @override
@@ -45,7 +47,7 @@ class _Pronunciation2State extends State<Pronunciation2> {
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     _flutterTts.speak(
       'Review your pronunciation. Four options available. Back, Next, Listen to insightED, and Listen to your recording. '

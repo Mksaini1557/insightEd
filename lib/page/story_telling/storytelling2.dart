@@ -11,6 +11,7 @@ class Storytelling2 extends StatefulWidget {
 class _Storytelling2State extends State<Storytelling2> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
+  bool _ttsReady = false;
 
   final String _story = '''
 The Potato, The Egg, And The Coffee Beans
@@ -58,6 +59,7 @@ Moral: In life, things happen around us, things happen to us, but the only thing
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   Future<void> _speakStory() async {

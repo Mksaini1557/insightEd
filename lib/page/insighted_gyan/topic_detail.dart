@@ -17,6 +17,7 @@ class TopicDetail extends StatefulWidget {
 class _TopicDetailState extends State<TopicDetail> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _hasSpoken = false;
+  bool _ttsReady = false;
   bool _isSpeaking = false;
 
   @override
@@ -29,10 +30,11 @@ class _TopicDetailState extends State<TopicDetail> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     final content = widget.topicData['content'] as String? ?? '';
     final hasContent = content.isNotEmpty;

@@ -13,6 +13,7 @@ class Technical extends StatefulWidget {
 class _TechnicalState extends State<Technical> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _hasSpoken = false;
+  bool _ttsReady = false;
 
   @override
   void initState() {
@@ -24,10 +25,11 @@ class _TechnicalState extends State<Technical> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     _flutterTts.speak(
       'Technical Courses. Four courses available. DSA, C plus plus, C, and Flutter. Slide your finger to explore options.',

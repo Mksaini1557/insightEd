@@ -19,6 +19,7 @@ class _TopicQuizState extends State<TopicQuiz> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final TextEditingController _topicController = TextEditingController();
   bool _hasSpoken = false;
+  bool _ttsReady = false;
   bool _isLoading = false;
   bool _quizStarted = false;
   bool _speechEnabled = false;
@@ -43,6 +44,7 @@ class _TopicQuizState extends State<TopicQuiz> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _initSpeech() async {
@@ -54,7 +56,7 @@ class _TopicQuizState extends State<TopicQuiz> {
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     if (!_quizStarted) {
       _flutterTts.speak(

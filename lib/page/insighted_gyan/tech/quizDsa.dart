@@ -11,6 +11,7 @@ class DsaQuiz extends StatefulWidget {
 class _DsaQuizState extends State<DsaQuiz> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
+  bool _ttsReady = false;
 
   final String _lessonText = '''
 Linked List
@@ -50,6 +51,7 @@ Disadvantages:
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   Future<void> _speakLesson() async {

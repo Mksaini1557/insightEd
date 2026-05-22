@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3)",
+      "Bash(flutter analyze *)",
+      "Bash(flutter build *)",
+      "Bash(find \"/c/Program Files/Flutter\" -path \"*/flutter.gradle\" -o -path \"*flutter_tools*gradle*\" 2>/dev/null | head -5)",
+      "Read(//c/Program Files/**)",
+      "Bash(flutter --version)",
+      "Bash(flutter clean *)"
+    ]
+  }
+}

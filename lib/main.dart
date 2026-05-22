@@ -12,6 +12,8 @@ import 'page/talk_with_insighted/talk_insighted_p3.dart';
 import 'page/story_telling/storytelling.dart';
 import 'page/story_telling/storytelling2.dart';
 import 'page/game/game.dart';
+import 'page/game/memory_match.dart';
+import 'page/game/number_guess.dart';
 import 'page/ui/comingsoon.dart';
 import 'page/ui/welcome.dart';
 import 'page/insighted_gyan/story1.dart';
@@ -101,6 +103,8 @@ class _InsightEdAppState extends State<InsightEdApp> {
         'DsaQuiz': (context) => const DsaQuiz(),
         'StartQuiz': (context) => const StartQuiz(),
         'Games': (context) => const Games(),
+        'MemoryMatch': (context) => const MemoryMatch(),
+        'NumberGuess': (context) => const NumberGuess(),
       },
     );
   }

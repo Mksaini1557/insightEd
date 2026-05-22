@@ -15,6 +15,7 @@ class InsightEdGyan extends StatefulWidget {
 class _InsightEdGyanState extends State<InsightEdGyan> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _hasSpoken = false;
+  bool _ttsReady = false;
 
   @override
   void initState() {
@@ -26,10 +27,11 @@ class _InsightEdGyanState extends State<InsightEdGyan> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     _flutterTts.speak(
       'insightED Gyan. Browse courses organized by category. Slide your finger to explore.',

@@ -18,6 +18,7 @@ class _TopicListState extends State<TopicList> {
   final FlutterTts _flutterTts = FlutterTts();
   final PageController _pageController = PageController();
   bool _isReading = false;
+  bool _ttsReady = false;
   bool _initialized = false;
   int _currentModule = 0;
   List<Map<String, dynamic>> _modules = [];

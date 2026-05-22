@@ -16,6 +16,7 @@ class _PronunciationGuideState extends State<PronunciationGuide> {
   final FlutterTts _flutterTts = FlutterTts();
   final FlutterSoundRecord _recorder = FlutterSoundRecord();
   bool _isRecording = false;
+  bool _ttsReady = false;
   int _pageNo = 0;
   late List<String> _quotes;
   bool _hasSpoken = false;
@@ -30,6 +31,7 @@ class _PronunciationGuideState extends State<PronunciationGuide> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   @override
@@ -44,7 +46,7 @@ class _PronunciationGuideState extends State<PronunciationGuide> {
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     final currentQuote = _pageNo < _quotes.length ? _quotes[_pageNo] : 'No quote available';
     _flutterTts.speak(

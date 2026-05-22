@@ -13,6 +13,7 @@ class TalkInsightEd1 extends StatefulWidget {
 class _TalkInsightEd1State extends State<TalkInsightEd1> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _hasSpoken = false;
+  bool _ttsReady = false;
 
   @override
   void initState() {
@@ -24,10 +25,11 @@ class _TalkInsightEd1State extends State<TalkInsightEd1> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announcePage() {
-    if (_hasSpoken) return;
+    if (_hasSpoken || !_ttsReady) return;
     _hasSpoken = true;
     _flutterTts.speak(
       'Talk with insightED. Two options. Option one: Talk to insightED Professional — coming soon. '

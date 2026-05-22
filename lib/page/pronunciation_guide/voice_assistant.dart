@@ -17,6 +17,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
+  bool _ttsReady = false;
   bool _speechEnabled = false;
   bool _isSearching = false;
   String _userText = '';
@@ -52,10 +53,11 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.1);
     await _flutterTts.setSpeechRate(0.48);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announceWelcome() {
-    if (_hasWelcomed) return;
+    if (_hasWelcomed || !_ttsReady) return;
     _hasWelcomed = true;
     _flutterTts.speak(
       'insightED Mitra. Tap the large Speak button to ask a question. '

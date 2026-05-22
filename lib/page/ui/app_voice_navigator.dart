@@ -17,6 +17,7 @@ class _AppVoiceNavigatorState extends State<AppVoiceNavigator> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _flutterTts = FlutterTts();
   bool _speechEnabled = false;
+  bool _ttsReady = false;
   NavState _state = NavState.idle;
   String _recognizedText = '';
   String _statusText = '';
@@ -77,10 +78,11 @@ class _AppVoiceNavigatorState extends State<AppVoiceNavigator> {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.45);
+    if (mounted) setState(() => _ttsReady = true);
   }
 
   void _announceWelcome() {
-    if (_hasWelcomed) return;
+    if (_hasWelcomed || !_ttsReady) return;
     _hasWelcomed = true;
     _flutterTts.speak(
       'App Voice Navigator. Say Hello Mitra to wake me up. Then speak the feature you want to open. '
