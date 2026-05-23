@@ -135,6 +135,7 @@ tr:last-child td{border-bottom:none}
 <button class="nav-item" onclick="navigate('add-category')"><span class="n-icon">📁</span> Add Category</button>
 <button class="nav-item" onclick="navigate('topics')"><span class="n-icon">📋</span> All Topics</button>
 <button class="nav-item" onclick="navigate('categories')"><span class="n-icon">🏷</span> Categories</button>
+<button class="nav-item" onclick="navigate('stories')"><span class="n-icon">📖</span> Stories</button>
 </nav>
 <div class="user-area">
 <div class="avatar" id="user-avatar">A</div>
@@ -218,7 +219,7 @@ function navigate(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.querySelector(`.nav-item[onclick="navigate('${page}')"]`)?.classList.add('active');
-  const titles = { dashboard: 'Dashboard', 'add-topic': 'Add New Topic', 'add-category': 'Add New Category', topics: 'All Topics', categories: 'Categories' };
+  const titles = { dashboard: 'Dashboard', 'add-topic': 'Add New Topic', 'add-category': 'Add New Category', topics: 'All Topics', categories: 'Categories', stories: 'Stories' };
   document.getElementById('page-title').textContent = titles[page] || '';
   const container = document.getElementById('page-content');
   switch (page) {
@@ -227,6 +228,7 @@ function navigate(page) {
     case 'add-category': container.innerHTML = renderAddCategory(); break;
     case 'topics': container.innerHTML = renderTopics(); loadTopicsTable(); break;
     case 'categories': container.innerHTML = renderCategories(); loadCategoriesTable(); break;
+    case 'stories': container.innerHTML = renderStories(); loadStoriesTable(); break;
   }
 }
 
@@ -445,6 +447,72 @@ async function loadCategoriesTable() {
 async function deleteCategory(id) {
   if (!confirm('Delete this category? Topics under it will remain but become uncategorized.')) return;
   try { await db.collection('gyan_categories').doc(id).delete(); toast('Category deleted', 'success'); loadCategoriesTable(); }
+  catch (e) { toast(e.message, 'error'); }
+}
+
+// ── STORIES ──
+function renderStories() {
+  return `<div class="card"><h3>📖 Add New Story</h3>
+    <div class="form-grid">
+      <div class="field"><label>Story Title *</label><input type="text" id="st-title" placeholder="e.g., The Lion and the Mouse"></div>
+      <div class="field"><label>Category</label><input type="text" id="st-cat" placeholder="e.g., moral, adventure, fable" value="moral"></div>
+      <div class="field" style="grid-column:1/-1"><label>Full Story Content *</label><textarea id="st-content" placeholder="Paste the complete story here... This will be read aloud to users." style="min-height:160px"></textarea></div>
+      <div class="field"><label>Color (Hex)</label><input type="text" id="st-color" placeholder="#FFC107" value="#4A6CF7"></div>
+      <div class="field"><label>Order</label><input type="number" id="st-order" value="1" min="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveStory()">💾 Save Story</button>
+      <button class="btn btn-outline" onclick="clearStoryForm()">Clear</button>
+    </div></div>
+    <div class="card"><h3>📋 All Stories</h3><div id="stories-table"><p style="color:var(--text2)">Loading...</p></div></div>`;
+}
+
+async function saveStory() {
+  const title = document.getElementById('st-title')?.value.trim();
+  const category = document.getElementById('st-cat')?.value.trim() || 'moral';
+  const content = document.getElementById('st-content')?.value.trim();
+  const color = document.getElementById('st-color')?.value.trim() || '#4A6CF7';
+  const order = parseInt(document.getElementById('st-order')?.value) || 1;
+  if (!title) return toast('Enter a title', 'error');
+  if (!content) return toast('Enter story content', 'error');
+  try {
+    await db.collection('stories').add({ title, category, content, color, order, createdAt: new Date().toISOString() });
+    toast(`Story "${title}" saved!`, 'success');
+    clearStoryForm();
+    loadStoriesTable();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function clearStoryForm() {
+  ['st-title','st-cat','st-content','st-color'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const o = document.getElementById('st-order'); if (o) o.value = '1';
+}
+
+async function loadStoriesTable() {
+  const div = document.getElementById('stories-table');
+  if (!div) return;
+  div.innerHTML = '<p style="color:var(--text2)">Loading...</p>';
+  try {
+    const snap = await db.collection('stories').get();
+    if (snap.empty) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No stories yet</p></div>'; return; }
+    let html = `<table><thead><tr><th>Title</th><th>Category</th><th>Content</th><th>Order</th><th>Actions</th></tr></thead><tbody>`;
+    snap.forEach(d => {
+      const x = d.data();
+      html += `<tr>
+        <td><strong>${x.title||'Untitled'}</strong></td>
+        <td><span class="badge badge-blue">${x.category||'moral'}</span></td>
+        <td>${x.content ? (x.content.length > 80 ? x.content.substring(0,80)+'...' : x.content) : '<span style="color:#ccc">—</span>'}</td>
+        <td>${x.order||1}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteStory('${d.id}')">🗑</button></td></tr>`;
+    });
+    html += '</tbody></table>';
+    div.innerHTML = html;
+  } catch (e) { div.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`; }
+}
+
+async function deleteStory(id) {
+  if (!confirm('Delete this story permanently?')) return;
+  try { await db.collection('stories').doc(id).delete(); toast('Story deleted', 'success'); loadStoriesTable(); }
   catch (e) { toast(e.message, 'error'); }
 }
 

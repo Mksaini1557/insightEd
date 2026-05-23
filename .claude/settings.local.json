@@ -7,7 +7,10 @@
       "Bash(find \"/c/Program Files/Flutter\" -path \"*/flutter.gradle\" -o -path \"*flutter_tools*gradle*\" 2>/dev/null | head -5)",
       "Read(//c/Program Files/**)",
       "Bash(flutter --version)",
-      "Bash(flutter clean *)"
+      "Bash(flutter clean *)",
+      "Read(//c/Users/mksai/Desktop/**)",
+      "Bash(python3 -c \"import docx; print\\('python-docx available'\\)\")",
+      "Bash(python3 *)"
     ]
   }
 }
